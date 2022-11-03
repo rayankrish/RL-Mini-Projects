@@ -1,0 +1,72 @@
+i read a about blackjack and then decided not do do the lectures
+
+Experiment 1:
+-------------
+What is the expected win rate for a random player against a fixed policy?
+
+A random policy has an average score of about -0.342 against a fixed policy
+dealer who always hits when the max sum is less than 17.
+
+Experiment 2:
+-------------
+What is the ideal threshold for a fixed policy against a random player?
+
+Table of threshold for hitting vs average score
+10 -0.2586700000001179
+11 -0.30269000000016194
+12 -0.33791000000019716
+13 -0.36848000000022774
+14 -0.3894600000002487
+15 -0.39181000000025107
+16 -0.37608000000023534
+17 -0.34459000000020384
+18 -0.28932000000014857
+19 -0.20741000000006665
+
+Empirically, 15 is the best threshold. For all thresholds from 1 to 20 the
+average score was negative, meaning the game is more likely to be won by the
+dealer. This is likely because the player goes first - they have the opportunity
+to randomly fail without the dealer's choice mattering at all.
+
+Experiment 3:
+-------------
+Can we estimate a reasonable value function that allows a smarter policy to beat
+the dealer?
+
+At 100,000 games, we get about 18.6 games per each combination we see. Most of the
+possible game histories are probably contained in 11^4 or ~14,000 histories. Note
+that this doesn't include the actions space which would double the number of games
+we would want to play. At 100,000 games we see only 4,410 game histories. Increasing
+by an order of magnitude only produces 7,246 game histories. This may have enough
+coverage for more probable games.
+
+With 1,000,000 games and a threshold of 17, we have an average score of -0.102.
+If we intentionally select a worse threshold of 12, this becomes positive with an
+average score of 0.05363. With 10,000,000 games and a threshold of 17 the average
+score is -0.0915.
+
+Experiment 4:
+-------------
+What if we disregarded the top card that the dealer has? Maybe this makes the space
+larger while not giving information that should inform our decision.
+
+Nope, this value is definitely important. Removing it gives an average score of -0.382.
+
+What if we kept the top card but instead of the full card history, just kept track of
+the running sum in the history? This would mean that the histories "A 37" and "A 28"
+would be considered the same. We already dismiss the order of cards by sorting them,
+but we could disregard the values more by keeping the sum instead.
+
+This does really badly. At 100,000 games, the policy gets an average score of -0.475
+which is worse than random. This might be because it doesn't keep track of aces in
+the right way.
+
+What if we use the prior method but also keep the number of aces in the history.
+
+Slightly better but still not great. At 100k, getting a score of -0.408.
+
+
+------------
+should always hit if the sum is less than 12?
+
+
