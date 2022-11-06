@@ -8,7 +8,7 @@ import random
 deck = [i for i in range(1, 11)] + [10]*3
 deck = deck * 4
 
-verbose = True
+verbose = False 
 showDealerHand = False
 
 def drawCard(deck):
@@ -18,7 +18,7 @@ def drawCard(deck):
 
 # deal with ordering problems and two digit numbers
 def cardsToStr(cards, dealerCard):
-    cardString = ""
+    cardString = "  " # fix: there needs to be 4 characters for the top 2
     """
     if dealerCard == 10:
         cardString = f"A "
@@ -26,10 +26,9 @@ def cardsToStr(cards, dealerCard):
         cardString = f"{dealerCard} "
     """
 
-    # TODO: make these sorted tuples
     #cardString += str(cards.count(1)) + " "
     #cardString += str(sum(cards))
-    cards = sorted(cards)
+    #cards = sorted(cards)
     for card in cards:
         if card == 10:
             cardString += "A"
@@ -63,16 +62,30 @@ def getBestSum(cards, runningSum=0):
 
 # randomly hit or stick
 def randomPolicy(cards, dealerCard):
+    if getMaxSum(cards) < 12:
+        return 1
     return random.randint(0,1)
 
-def getMonteCarloPolicy(valueFunction):
+def getMonteCarloPolicy(valueFunction, eps=0.05):
     def monteCarloPolicy(cards, dealerCard):
+        if getMaxSum(cards) < 12:
+            return 1
+        """
+        if random.uniform(0, 1) < eps:
+            return random.randint(0,1)
+        """
         cardsString = cardsToStr(cards, dealerCard)
         if cardsString in valueFunction:
             if 0 in valueFunction[cardsString] and 1 in valueFunction[cardsString]:
                 if valueFunction[cardsString][0] > valueFunction[cardsString][1]:
+                    if random.uniform(0, 1) < eps:
+                        return 1
+                    else:
+                        return 0
+                if random.uniform(0, 1) < eps:
                     return 0
-                return 1
+                else:
+                    return 1
             else:
                 return random.randint(0,1)
         return random.randint(0,1)
@@ -162,10 +175,50 @@ def game(playerPolicy, dealerPolicy):
     if bestPlayerSum > bestDealerSum: return cardsToStr(playerCards, dealerCards[0]), playerActions, 1
     return cardsToStr(playerCards, dealerCards[0]), playerActions, -1
 
+def policyIterationExperiment(eps=0.1):
+    numGames = 100000
+    threshold = 17
+    history = {} # episode: {action: score}
+    aveScore = 0
+    for i in range(numGames):
+        episode, actions, score = game(randomPolicy, getDealerPolicy(threshold))
+        if verbose:
+            print(episode)
+            print(actions)
+            print(score)
+        aveScore += score/numGames
+        updateHistory(history, episode, actions, score)
+
+    print(aveScore)
+    valueFunction = averageHistory(history)
+    print("Found the Initial Value Function")
+
+    for j in range(10):
+        aveScore = 0
+        smartPlayerPolicy = getMonteCarloPolicy(valueFunction, eps=eps)
+        for i in range(numGames):
+            episode, actions, score = game(smartPlayerPolicy, getDealerPolicy(threshold))
+            aveScore += score/numGames
+            updateHistory(history, episode, actions, score)
+        print("Round", j, ":", aveScore)
+        valueFunction = averageHistory(history)
+
+    print("Doing a final evaluation")
+    aveScore = 0
+    smartPlayerPolicy = getMonteCarloPolicy(valueFunction, eps=0)
+    for i in range(numGames):
+        episode, actions, score = game(smartPlayerPolicy, getDealerPolicy(threshold))
+        aveScore += score/numGames
+        updateHistory(history, episode, actions, score)
+    print("Score:", aveScore)
+
+
 if __name__ == "__main__":
+    policyIterationExperiment()
     # random policy to get a good value function
-    numGames = 10
-    threshold = 15
+    """
+    numGames = 100000
+    threshold = 17
     history = {} # episode: {action: score}
     aveScore = 0
     for i in range(numGames):
@@ -187,6 +240,8 @@ if __name__ == "__main__":
         episode, actions, score = game(smartPlayerPolicy, getDealerPolicy(threshold))
         aveScore += score/numGames
     print(aveScore)
+    """
+
     """
     for i in range(10):
         episode, actions, score = game(humanPolicy, getDealerPolicy(17))

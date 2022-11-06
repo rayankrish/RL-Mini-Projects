@@ -50,23 +50,25 @@ Experiment 4:
 What if we disregarded the top card that the dealer has? Maybe this makes the space
 larger while not giving information that should inform our decision.
 
-Nope, this value is definitely important. Removing it gives an average score of -0.382.
+This improves the policy! We now have a return of -0.07.
 
-What if we kept the top card but instead of the full card history, just kept track of
-the running sum in the history? This would mean that the histories "A 37" and "A 28"
-would be considered the same. We already dismiss the order of cards by sorting them,
-but we could disregard the values more by keeping the sum instead.
+Experiment 5:
+-------------
+What if we implement an epsilon policy that acts greedly, but acts randomly for some
+small proportion of games? Maybe we can improve our policy while exploring more.
 
-This does really badly. At 100,000 games, the policy gets an average score of -0.475
-which is worse than random. This might be because it doesn't keep track of aces in
-the right way.
+This does really well, our final score is -0.047.
 
-What if we use the prior method but also keep the number of aces in the history.
+Rather than acting randomly, what if we did the opposite of what we think we should do?
 
-Slightly better but still not great. At 100k, getting a score of -0.408.
+This does slightly better with a final score of -0.0436. This is probably becuase in the
+exploration phase we get to see more options and challenge the existing value function
+belief.
 
+Can we improve the policy if we just always hit when the max sum is less than 12?
 
-------------
-should always hit if the sum is less than 12?
+This has a marginal improvement with a final score of -0.0416. This is a deterministic
+way to improve the policy.
+
 
 
