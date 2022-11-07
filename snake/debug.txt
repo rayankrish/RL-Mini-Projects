@@ -1,0 +1,66 @@
+
+parameters(eps, lambda, gamma, alpha)
+(randomness, step look-ahead, decay, learning rate)
+
+Attempt 1:
+(0, 1, 1, 1) - the agent learns how to avoid death but never explores enough to find the apple and be rewarded.
+After the first trial, it thinks that going right or up leads to death so it simply goes down, then finds the
+vertical midpoint (which is a new state) and simply bounces back and forth between S and N, never dying.
+
+Attempt 2:
+(0.5, 0.5, 0.5, 0.5) - basically wandering around aimlessly, unable to find the apple and usually not dying.
+Maybe we should give some minor reward for getting closer to the apple? Or move the apple closer so it has a
+higher chance of stumbling on it? Or give it a cost for existing at all?
+
+Attempt 3:
+(0.1, 0.5, 0.5, 0.5) - reduce the randomness, but keep the other parameters. Still stupid, basically back to
+attempt 1.
+
+Attempt 4:
+(0.25, 0.5, 0.5, 0.5) and move the apple closer to the start - more promising, managed to get the apple eventually!
+Still takes a lot of messing around until it gets lucky and then can somewhat more reliably get the first apple but
+nothing more. Increasing number of games from 10 to 20 to see if it figures out a better strategy.
+
+Attempt 5:
+The snake becomes a nihilist, getting the first apple but then doesn't go for the apple again in following
+iterations. Implementing an "existence is pain" punishment of 0.001. Hypothesis - there is a big difference
+between a one segment and a greater than one segment snake. Once it's greater than one, there's always one
+move it can't do so it basically has a whole new state space to learn. This might also happen with 3 where
+there is a new concern of not crossing itself.
+
+Attempt 6:
+(0.25, 0.5, 0.75, 0.75) - try and get it to learn faster and not make unnecessary connections in long games.
+
+Attempt 7:
+(0.5, 0.5, 0.5, 0.75) - things aren't really working. Going to increase randomness and cost of existence,
+increase the number of games. Hopefully things look better after 50 games.
+
+Attempt 8:
+(0.1, 0.5, 0.5, 0.75) - helped a bit, got our first score of 4! Still behaving pretty erratically, might need to
+increase the learning rate so it makes a bigger change when a positive reward is achieved. There might be a bug
+that allows the snake head to go back into itself, but then it immediately dies (so might not be a problem).
+It's odd that the agent figure out how to get the apple at like 20 games, but then gets stuck in some bad learning
+patterns and stays at 1 from 30-50. Going to simply try and increase the apple reward to 5 so it has a bigger
+impact.
+
+Attempt 9:
+I think the game is too big. There's too much space to explore. There are really only four quadrants that matter
+in the start: if left move right, if above move down and the opposites. Even if it learns one quadrant, it's really
+hard to get it to randomly learn another quadrant. Going to make the world smaller from 30 tiles per side to 10.
+Does better overall, consistently gets the first apple and pretty reliably gets a score of 3.
+
+Attempt 10:
+(0.05, 0.5, 0.5, 0.9) and 100 iterations got to a top score of 7!! Learned some really interesting tricks like
+going in circles to prevent it from cutting itself off. Had some cyclic patters - every time it was in the bottom
+right quadrant, it would go in an ideal snaking pattern until it found the apple. Maybe because the apple is worth
+so much more than the cost of existing, it incentivised eventually getting the apple rather than rushing towards
+it and dying. Because the apple is worth so much more than dying, maybe dying isn't so bad?
+
+Attempt 11:
+Seems like there's confusion when the snake is on the border of an axis. This is because we give 0 for to the left
+or equal to and 1 for to the right of. Same for up/down borders. Going to quadruple the state space by assigning
+values of 0, 1, 2 for left equal and right respectively. Seems to help quite a lot! Easily gets top score of 7 in
+100 iterations and now gets 10 in 120!!! Maybe we should give a higher reward when the snake manages to get an apple
+when it is longer? That would prevent it from voluntarily dying and just going for the easy apple. Reducing the
+value of the apple was huge for the max score!! Now gets 12 in 150 iterations. Now gets top score of 14.
+

@@ -1,0 +1,28 @@
+
+
+while true:
+    if no food:
+        spawn random food on tile where there is no snake
+
+    move head one step forward (in orientation) and update tail locations
+
+    if head off screen or head on tail pos
+        die
+
+    if head on food, update score, add to tail, and remove food
+
+
+arrow key listener:
+    update orientation
+
+
+steps:
+    snake mechanics no food (have fixed tail length)
+
+
+--------------------------
+should we implement a cost for every time step for which the apple is not gotten?
+how would an algorithm learn to avoid or go around itself??
+how do we pick a time horizon n that gives the agent enough intermediate states?
+
+    
